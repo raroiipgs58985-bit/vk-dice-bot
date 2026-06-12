@@ -1,16 +1,28 @@
 import random
 import re
+import os
+from threading import Thread
+
 import vk_api
+from flask import Flask
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 
 TOKEN = "vk1.a.vQsAXzkzX8zjMiwVagPuvllNdhke8EXnt-JrXfMIl9MHuSbW0bz9zxOOhDKTf7omkC7SnLMJGOqm4gPv_F1elNvmYUMnW42VLFM9hmW5wksbQJYMKAeaXofsaSWB2wV_yv_9hffOVj-cq8rNqwA6U1_ph0tqQDlP2vFa7zIX2k_h3CDavShkUt3A5Z6iCcDv_BKgcrPZ3iq6gAVvavV1pg"
 GROUP_ID = 239351715
 
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return "Кубятня работает!"
+
+def run_web():
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
+
 vk_session = vk_api.VkApi(token=TOKEN)
 vk = vk_session.get_api()
 longpoll = VkBotLongPoll(vk_session, GROUP_ID)
-
-print("Бот запущен")
 
 def send(peer_id, text):
     vk.messages.send(
@@ -43,9 +55,6 @@ def roll_dice(text):
     sides = int(match.group(2))
     bonus = int(match.group(3) or 0)
 
-    if count < 1:
-        return None
-
     if count > 100:
         return "❌ Максимум 100 кубиков за бросок."
 
@@ -53,7 +62,6 @@ def roll_dice(text):
         return "❌ Кубик должен иметь минимум 2 грани."
 
     rolls = [random.randint(1, sides) for _ in range(count)]
-
     total = sum(rolls) + bonus
 
     dice_name = f"{count}к{sides}"
@@ -68,11 +76,7 @@ def roll_dice(text):
         result += f"💬 {comment}\n"
 
     result += "━━━━━━━━━━━━━━\n"
-
-    if count == 1:
-        result += f"🎯 Выпало: {rolls[0]}\n"
-    else:
-        result += f"🎯 Выпало: {', '.join(map(str, rolls))}\n"
+    result += f"🎯 Выпало: {', '.join(map(str, rolls))}\n"
 
     if bonus:
         result += f"➕ Бонус: +{bonus}\n"
@@ -82,17 +86,18 @@ def roll_dice(text):
 
     return result
 
+Thread(target=run_web, daemon=True).start()
+print("Бот запущен")
+
 for event in longpoll.listen():
     if event.type == VkBotEventType.MESSAGE_NEW:
-
         msg = event.object.message
-
         text = msg.get("text", "")
         peer_id = msg["peer_id"]
 
         answers = []
 
-        for line in text.split("\n"):
+        for line in text.splitlines():
             answer = roll_dice(line)
 
             if answer:
