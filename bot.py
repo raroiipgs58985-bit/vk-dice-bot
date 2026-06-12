@@ -245,7 +245,7 @@ def main():
     vk = vk_session.get_api()
     longpoll = VkBotLongPoll(vk_session, GROUP_ID)
 
-    print("Кубятня запущена.")
+    print("Кубятня запущена.", flush=True)
 
     for event in longpoll.listen():
         if event.type != VkBotEventType.MESSAGE_NEW:
