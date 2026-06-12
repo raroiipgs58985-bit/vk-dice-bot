@@ -124,17 +124,13 @@ def make_message(player, result):
     quote = random.choice(QUOTES)
 
     msg = (
-        "╔══════════════════╗\n"
-        "║     🎲 КУБЯТНЯ     ║\n"
-        "╚══════════════════╝\
-app.run - Данный веб-сайт выставлен на продажу! - app Ресурсы и информация.
-app.run
+    "┌─────────────────┐\n"
+    "│ 🎲 КУБЯТНЯ 🎲 │\n"
+    "└─────────────────┘\n"
 
-
-n\n"
-        f"👤 Игрок: {player}\n"
-        f"🎲 Бросок: {result['dice']}\n"
-    )
+    f"👤 Игрок: {player}\n"
+    f"🎲 Бросок: {result['dice']}\n"
+)
 
     if result["comment"]:
         msg += f"💬 {result['comment']}\n"
