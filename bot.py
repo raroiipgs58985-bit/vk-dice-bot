@@ -1,6 +1,7 @@
 import random
 import re
 import os
+import time
 from threading import Thread
 
 import vk_api
@@ -10,6 +11,9 @@ from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 
 TOKEN = "vk1.a.vQsAXzkzX8zjMiwVagPuvllNdhke8EXnt-JrXfMIl9MHuSbW0bz9zxOOhDKTf7omkC7SnLMJGOqm4gPv_F1elNvmYUMnW42VLFM9hmW5wksbQJYMKAeaXofsaSWB2wV_yv_9hffOVj-cq8rNqwA6U1_ph0tqQDlP2vFa7zIX2k_h3CDavShkUt3A5Z6iCcDv_BKgcrPZ3iq6gAVvavV1pg"
 GROUP_ID = 239351715
+
+if not TOKEN:
+    raise RuntimeError("TOKEN не найден")
 
 
 QUOTES_RAW = [
@@ -111,6 +115,14 @@ QUOTES_RAW = [
 ]
 
 QUOTES = list(dict.fromkeys(QUOTES_RAW))
+quote_pool = []
+
+
+SPECIAL_REPLIES = {
+    "тау": "тау пидоры",
+    "эреб": "Эреб не гей",
+    "магнус": "Магнус не предавал"
+}
 
 
 app = Flask(__name__)
@@ -124,6 +136,16 @@ def home():
 def run_web():
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
+
+
+def get_random_quote():
+    global quote_pool
+
+    if not quote_pool:
+        quote_pool = QUOTES.copy()
+        random.shuffle(quote_pool)
+
+    return quote_pool.pop()
 
 
 def get_user_name(vk, user_id):
@@ -150,13 +172,15 @@ def make_help():
         "[2к6\n"
         "[5к10+7\n"
         "[3к20+69 #стрельба\n\n"
+        "🗣 Автоответы:\n"
+        "тау / эреб / магнус\n\n"
         f"📜 В базе цитат: {len(QUOTES)}\n"
-        "⚔ Бот реагирует только на символ ["
+        "⚔ Бот реагирует на команды только через символ ["
     )
 
 
 def make_quote():
-    quote = random.choice(QUOTES)
+    quote = get_random_quote()
     return (
         "📜 ЦИТАТА ДНЯ\n"
         "━━━━━━━━━━━━━━━\n"
@@ -216,7 +240,7 @@ def roll(command):
 
 
 def make_message(player, result):
-    quote = random.choice(QUOTES)
+    quote = get_random_quote()
 
     msg = (
         "🎲 КУБЯТНЯ 🎲\n"
@@ -253,6 +277,22 @@ def main():
 
         message = event.object.message
         text = message.get("text", "").strip()
+
+        print(f"Получено сообщение: {text}", flush=True)
+
+        if not text:
+            continue
+
+        lower_text_full = text.lower()
+
+        for trigger, reply in SPECIAL_REPLIES.items():
+            if trigger in lower_text_full:
+                vk.messages.send(
+                    peer_id=message["peer_id"],
+                    random_id=random.randint(1, 2**31),
+                    message=reply
+                )
+                break
 
         if not text.startswith("["):
             continue
@@ -297,6 +337,15 @@ def main():
             )
 
 
+def run_bot_forever():
+    while True:
+        try:
+            main()
+        except Exception as e:
+            print(f"Ошибка VK LongPoll: {e}", flush=True)
+            time.sleep(10)
+
+
 if __name__ == "__main__":
     Thread(target=run_web, daemon=True).start()
-    main()
+    run_bot_forever()
