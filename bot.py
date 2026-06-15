@@ -114,14 +114,21 @@ def upload_photo(vk_session, peer_id, image_path):
         print(f"Картинка не найдена: {image_path}", flush=True)
         return None
 
-    upload = VkUpload(vk_session)
+    try:
+        upload = VkUpload(vk_session)
 
-    photo = upload.photo_messages(
-        photos=image_path,
-        peer_id=peer_id
-    )[0]
+        photo = upload.photo_messages(
+            photos=image_path,
+            peer_id=peer_id
+        )[0]
 
-    return f"photo{photo['owner_id']}_{photo['id']}_{photo['access_key']}"
+        print(f"Фото загружено: {image_path}", flush=True)
+
+        return f"photo{photo['owner_id']}_{photo['id']}_{photo.get('access_key', '')}"
+
+    except Exception as e:
+        print(f"Ошибка загрузки картинки {image_path}: {e}", flush=True)
+        return None
 
 
 def get_random_quote():
