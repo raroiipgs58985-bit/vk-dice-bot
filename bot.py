@@ -10,7 +10,7 @@ from flask import Flask
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 
 
-TOKEN = "vk1.a.vQsAXzkzX8zjMiwVagPuvllNdhke8EXnt-JrXfMIl9MHuSbW0bz9zxOOhDKTf7omkC7SnLMJGOqm4gPv_F1elNvmYUMnW42VLFM9hmW5wksbQJYMKAeaXofsaSWB2wV_yv_9hffOVj-cq8rNqwA6U1_ph0tqQDlP2vFa7zIX2k_h3CDavShkUt3A5Z6iCcDv_BKgcrPZ3iq6gAVvavV1pg"
+TOKEN = "vk1.a.ceenGlcLhhVpKFGc4HAJfNdEZiBEwu4qoN25_7vnElyV7S7GF4PQGoYVCqD_eAFaUqnSe-MjCuttecLlxuyxqI6dsi93ACm7Wrdg6NDar7x5F5GVl1IFrPnGbPzgKn1W3sIAlAsPAYcWjOF9Ab-olAIcpby-Y4LAOYUSgbDP5iRGPvdRIO0eM4dJJVKf_sU7IHjhTZI3nx6M3fAIJTFHbQ"
 GROUP_ID = 239351715
 
 if not TOKEN:
