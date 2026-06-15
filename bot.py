@@ -106,6 +106,23 @@ def run_web():
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
 
+def upload_photo(vk_session, peer_id, image_path):
+    if not image_path:
+        return None
+
+    if not os.path.exists(image_path):
+        print(f"Картинка не найдена: {image_path}", flush=True)
+        return None
+
+    upload = VkUpload(vk_session)
+
+    photo = upload.photo_messages(
+        photos=image_path,
+        peer_id=peer_id
+    )[0]
+
+    return f"photo{photo['owner_id']}_{photo['id']}_{photo['access_key']}"
+
 
 def get_random_quote():
     global quote_pool
@@ -259,12 +276,19 @@ def main():
         peer_id = message["peer_id"]
         lower_text_full = text.lower()
 
-        for trigger, reply in SPECIAL_REPLIES.items():
+        for trigger, data in SPECIAL_REPLIES.items():
             if trigger in lower_text_full:
+                attachment = upload_photo(
+                    vk_session,
+                    peer_id,
+                    data.get("image")
+                )
+
                 vk.messages.send(
                     peer_id=peer_id,
                     random_id=random.randint(1, 2**31),
-                    message=reply
+                    message=data["text"],
+                    attachment=attachment
                 )
                 break
 
