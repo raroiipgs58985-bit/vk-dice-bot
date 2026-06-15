@@ -118,13 +118,17 @@ def upload_photo(vk_session, peer_id, image_path):
         upload = VkUpload(vk_session)
 
         photo = upload.photo_messages(
-            photos=image_path,
-            peer_id=peer_id
+            photos=image_path
         )[0]
 
         print(f"Фото загружено: {image_path}", flush=True)
 
-        return f"photo{photo['owner_id']}_{photo['id']}_{photo.get('access_key', '')}"
+        access_key = photo.get("access_key")
+
+        if access_key:
+            return f"photo{photo['owner_id']}_{photo['id']}_{access_key}"
+
+        return f"photo{photo['owner_id']}_{photo['id']}"
 
     except Exception as e:
         print(f"Ошибка загрузки картинки {image_path}: {e}", flush=True)
