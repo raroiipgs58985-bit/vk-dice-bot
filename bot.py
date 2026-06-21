@@ -43,7 +43,7 @@ quote_pool = []
 
 
 SPECIAL_REPLIES = {
-    "AjdbuGss": {
+    "тау": {
         "text": "тау СОСАТ!",
         "image": "Tau.png"
     },
